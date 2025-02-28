@@ -1,0 +1,7 @@
+myhosts:
+  hosts:
+    cpanel:
+      ansible_host: 192.250.239.60
+  vars:
+    ansible_user: gumiapun
+    ansible_ssh_pass:

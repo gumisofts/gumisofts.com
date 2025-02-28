@@ -1,5 +1,9 @@
 - name: Django Application server set up
   hosts: myhosts
+  vars:
+    working_dir: /home/gumiapun/gumisofts.com/dev
+    repo: git@github.com:gumisofts/gumisofts.com.git
+    virtual_env=
   tasks:
     - name: Update packages
       become: true
@@ -11,20 +15,14 @@
         accept_hostkey: true
         clone: yes
         update: yes
-        name: git@github.com:gumisofts/gumisofts.com.git
-        dest: /home/gumiapun/gumisofts.com/dev
+        name: {{repo}}
+        dest: {{working_dir}}
         force: yes
 
     - name: Install Pip requirements
       ansible.builtin.pip:
-        virtualenv: ~/app/env
-        requirements: ~/app/requirements.txt
-    - name: Setup unix socket
-      become: true
-      ansible.builtin.copy:
-        force: true
-        src: ../deployment/app.socket
-        dest: /etc/systemd/system/app.socket
+        virtualenv: {{virtual_env}}
+        requirements: "{{working_dir}}/requirements.txt"
     - name: Copy Environmental Variables
       copy:
         dest: ~/app/config/

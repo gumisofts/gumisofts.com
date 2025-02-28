@@ -2,23 +2,22 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
+from django.core.management.utils import get_random_secret_key
 
-load_dotenv("config/app.env")
-load_dotenv("config/.env")
+load_dotenv()
+load_dotenv(".pro.env", override=True)
+load_dotenv(".demo.env", override=True)
+load_dotenv(".dev.env", override=True)
 env = os.getenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY", get_random_secret_key())
 DEBUG = env("DEBUG", False) == "True"
 
-ALLOWED_HOSTS = [
-    "localhost",
-]
+ALLOWED_HOSTS = env("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 
-# Application definition
-
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
+CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 
 AUTH_USER_MODEL = "account.User"
 INSTALLED_APPS = [
@@ -47,7 +46,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -64,19 +63,16 @@ WSGI_APPLICATION = "core.wsgi.app"
 ASGI_APPLICATION = "core.asgi.app"
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     "dev": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("POSTGRES_DB", "dev"),
-        "USER": env("POSTGRES_USER", "dev"),
-        "PASSWORD": env("POSTGRES_PASSWORD", "developer@123"),
-        "HOST": env("POSTGRES_HOST", "localhost"),
-        "PORT": env("POSTGRES_PORT", "5432"),
+        "NAME": env("PG_DB_NAME"),
+        "USER": env("PG_USER"),
+        "PASSWORD": env("PG_PASSWORD"),
+        "HOST": env("PG_HOST", "localhost"),
+        "PORT": env("PG_PORT", "5432"),
         "CONN_MAX_AGE": None,
-        "OPTIONS": {"sslmode": env("POSTGRES_SSL_MODE")},
+        "OPTIONS": {"sslmode": env("PG_SSL_MODE")},
     },
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -84,9 +80,6 @@ DATABASES = {
     },
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -104,9 +97,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -116,13 +106,10 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_URL = env("STATIC_URL", "/static/")
+STATIC_ROOT = env("STATIC_ROOT")
 
-STATIC_URL = "static/"
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -166,8 +153,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Description of documentation",
     "VERSION": "0.0.1",
     "SERVE_INCLUDE_SCHEMA": True,
-    # OTHER SETTINGS
-    "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
+    "SWAGGER_UI_DIST": "SIDECAR",
     "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "REDOC_DIST": "SIDECAR",
 }
