@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 # Create your views here.
 
-release_date = datetime(2025, 4, 1)
+release_date = datetime(2025, 5, 1)
 
 
 def home(request, *args, **kwargs):
